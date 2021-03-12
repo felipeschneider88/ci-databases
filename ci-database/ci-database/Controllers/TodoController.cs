@@ -26,14 +26,39 @@ namespace ci_database.Controllers
             _logger = logger;
             _config = config;
         }
-        [HttpGet]
-        public async Task<JToken> get()
+        //[HttpGet]
+        [HttpGet("{id?}")]
+        public async Task<JToken> get(int? id)
         {
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("Postgres")))
             {
-                string query = " select * from todos";
+                string query = " select * from get_todos(@id)";
+                NpgsqlCommand selectCommand = new NpgsqlCommand(query);
+                if (id.HasValue)
+                {
+                    selectCommand.Parameters.Add(
+                        new NpgsqlParameter()
+                        {
+                            ParameterName = "@id",
+                            DbType = System.Data.DbType.Int32,
+                            Value = id
+                        }
+                        );
+                }
+                else
+                {
+                    selectCommand.Parameters.Add(
+                    new NpgsqlParameter()
+                    {
+                        ParameterName = "@id",
+                        DbType = System.Data.DbType.Int32,
+                        //set 0 with is no value on the SP
+                        Value = 0
+                    }
+                    );
+                }
+                selectCommand.Connection = conn;
                 conn.Open();
-                NpgsqlCommand selectCommand = new NpgsqlCommand(query, conn);
                 NpgsqlDataReader reader = selectCommand.ExecuteReader(); 
                 var datatable = new DataTable();
                 datatable.Load(reader);
@@ -43,19 +68,6 @@ namespace ci_database.Controllers
                 conn.Close();
                 return JToken.Parse(JsonResponse);
             }
-        }
-
-        // GET api/<TodoController>/5
-        [HttpGet("{id?}")]
-        public string Get(int? id)
-        {
-            return "value";
-        }
-
-        // POST api/<TodoController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
         }
 
         // PUT api/<TodoController>/5
@@ -70,27 +82,5 @@ namespace ci_database.Controllers
         {
         }
 
-        //private JToken EnrichResult(string source)
-        //{
-        //    var jr = JToken.Parse(source ?? "[]");
-
-        //    var baseUrl = (HttpContext != null) ? HttpContext.Request.Scheme + "://" + HttpContext.Request.Host : string.Empty;
-
-        //    var AddUrl = new Action<JObject>(o =>
-        //    {
-        //        if (o == null) return;
-        //        var todoUrl = $"{baseUrl}/todo/{o["id"]}";
-        //        o["url"] = todoUrl;
-        //    });
-
-        //    if (jr is JArray ja)
-        //        ja.ToList().ForEach(e => AddUrl(e as JObject));
-        //    else if (jr is JObject jo)
-        //        AddUrl(jo);
-        //    else
-        //        throw new ArgumentException($"{nameof(source)} is not an array or an object");
-
-        //    return jr;
-        //}
     }
 }
