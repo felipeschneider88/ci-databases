@@ -3,25 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ci_database.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("[controller]")]
     public class TodoController : ControllerBase
     {
-        // GET: api/<TodoController>
+        private readonly ILogger<TodoController> _logger;
+        private readonly IConfiguration _config;
+
+        public TodoController(ILogger<TodoController> logger, IConfiguration config)
+        {
+            _logger = logger;
+            _config = config;
+        }
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<string> get()
         {
             return new string[] { "value1", "value2" };
         }
 
         // GET api/<TodoController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id?}")]
+        public string Get(int? id)
         {
             return "value";
         }
