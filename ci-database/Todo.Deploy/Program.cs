@@ -17,7 +17,7 @@ namespace Todo.Deploy
             //var connectionString = "Host=localhost;Username=postgres;Password=Passw0rd;Database=todo;";
 
             // Password for the user that will be used by the API to connect to Azure SQL (low-privileged account)
-            var backEndUserPassword = Environment.GetEnvironmentVariable("BackEndUserPassword");
+            var webAPIUSer = Environment.GetEnvironmentVariable("webAPIUSer");
 
             var csb = new  NpgsqlConnectionStringBuilder(connectionString);
             Console.WriteLine($"Deploying database: {csb.Database}");
@@ -32,10 +32,9 @@ namespace Todo.Deploy
                 .PostgresqlDatabase(csb.ConnectionString)
                 .WithScriptsFromFileSystem("./sql")
                 .JournalToPostgresqlTable("public", "$__dbup_journal")
-                .WithVariable("BackEndUserPassword", backEndUserPassword)
+                .WithVariable("webAPIUSer", webAPIUSer)
                 .LogToConsole()
                 .Build();
-
 
             var result = dbup.PerformUpgrade();
 

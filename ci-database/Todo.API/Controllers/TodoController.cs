@@ -32,7 +32,7 @@ namespace ci_database.Controllers
         {
             using (var conn = new NpgsqlConnection(_config.GetConnectionString("Postgres")))
             {
-                string query = " select * from get_todos(@id)";
+                string query = " select * from web.get_todos(@id)";
                 NpgsqlCommand selectCommand = new NpgsqlCommand(query);
                 if (id.HasValue)
                 {
